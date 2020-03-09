@@ -1,0 +1,22 @@
+---
+driver:
+  name: docker
+  use_sudo: true
+  use_internal_docker_network: true
+
+provisioner:
+  name: ansible_push
+  chef_bootstrap_url: nil
+
+platforms:
+- name: centos-7
+
+suites:
+- name: ansiblepush
+  provisioner:
+    playbook: ./site.yml
+
+verifier:
+  name: inspec
+  inspec_tests:
+  - test/integration/default

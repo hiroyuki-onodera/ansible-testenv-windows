@@ -3,6 +3,7 @@ driver:
   run_options: >-
     -v //var/run/docker.sock:/var/run/docker.sock
     -v /usr/local/bin/docker:/bin/docker
+    -v <%= ENV['PWD'] %>/repo:/home/kitchen/repo
   #socket: unix:///var/run/docker.sock
   #socket: tcp://localhost:2375
   socket: npipe:////./pipe/docker_engine

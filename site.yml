@@ -2,85 +2,20 @@
   gather_facts: false
   become: true
   become_user: kitchen
-  vars:
-    sample_pb: ~/sample_pb
   tasks:
   - name: install the chef-workstation rpm from a remote repo
-    yum:
-    # name: https://packages.chef.io/files/stable/chef-workstation/0.9.42/el/7/chef-workstation-0.9.42-1.el7.x86_64.rpm
-      name: https://packages.chef.io/files/stable/chef-workstation/0.11.21/el/7/chef-workstation-0.11.21-1.el7.x86_64.rpm
     become_user: root
-    become: true
+    yum:
+      name: https://packages.chef.io/files/stable/chef-workstation/0.11.21/el/7/chef-workstation-0.11.21-1.el7.x86_64.rpm
 
   - name: add 'eval "$(chef shell-init bash)"' to ~/.bash_profile
     lineinfile:
-      #dest: ~kitchen/.bash_profile
       dest: ~/.bash_profile
       line: eval "$(chef shell-init bash)"
-    #become: true
-    #become_user: kitchen
 
   - name: gem install
     shell: |
       set -e
-      eval "$(chef shell-init bash)"
+      . ~/.bash_profile
       gem install kitchen-ansiblepush
       gem install kitchen-docker
-    #become: true
-    #become_user: kitchen
-
-  -
-    file:
-      path: "{{ sample_pb }}/test/integration/default"
-      state: directory
-      recurse: yes
-
-  -
-    copy:
-      dest: "{{ sample_pb }}/kitchen.yml"
-      content: |
-        ---
-        driver:
-          name: docker
-          use_sudo: true
-          use_internal_docker_network: true
-
-        provisioner:
-          name: ansible_push
-          chef_bootstrap_url: nil
-
-        platforms:
-        - name: centos-7
-
-        suites:
-        - name: ansiblepush
-          provisioner:
-            playbook: ./site.yml
-
-        verifier:
-          name: inspec
-          inspec_tests:
-          - test/integration/default
-
-  -
-    copy:
-      dest: "{{ sample_pb }}/site.yml"
-      content: |
-        ---
-        - hosts: all
-          gather_facts: false
-          become: true
-          tasks:
-          -
-            user:
-              name: foo
-
-  -
-    copy:
-      dest: "{{ sample_pb }}/test/integration/default/default_test.rb"
-      content: |
-        # # encoding: utf-8
-
-        describe user('foo') do
-          it { should exist }
-        end
